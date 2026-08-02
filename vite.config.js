@@ -17,7 +17,6 @@ export default defineConfig({
           "@react-three/drei",
           "@react-three/rapier"
         ],
-        firebase: ["firebase"],
         gsap: ["gsap"]
       }
     }
