@@ -55,8 +55,8 @@ Jika sudah di-deploy (contoh: GitHub Pages, Netlify, Vercel), kamu bisa tambahka
 Hai, saya Bayu adi Saputra (username GitHub: `Adisaputra555`).
 Saya seorang Developer yang suka bikin aplikasi web ringan dengan tampilan modern dan performa tinggi. Scroll aja di project saya, dan jangan sungkan untuk reach out kalau ada pertanyaan!
 
-- **Email:** [email_farisedrik21@gmail.com](mailto:email_bayuadi00025@gmail.com)
-- **LinkedIn:** [linkedin.com/in/farisedp](https://www.linkedin.com/in/bayu-adi-saputra-aab385196?utm_source=share_via&utm_content=profile&utm_medium=member_android)
+- **Email:** (bayuadi00025@gmail.com)
+- **LinkedIn:** (https://www.linkedin.com/in/bayu-adi-saputra-aab385196?utm_source=share_via&utm_content=profile&utm_medium=member_android)
 - **Instagram:** @adibayu025
 
 ---

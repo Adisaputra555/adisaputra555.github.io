@@ -6,4 +6,21 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   base: "/portfolio/",
   plugins: [react(), tailwindcss()],
+  build: {
+  chunkSizeWarningLimit: 1000,
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        three: ["three"],
+        reactThree: [
+          "@react-three/fiber",
+          "@react-three/drei",
+          "@react-three/rapier"
+        ],
+        firebase: ["firebase"],
+        gsap: ["gsap"]
+      }
+    }
+  }
+}
 })
