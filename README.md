@@ -23,7 +23,7 @@ Dibuat dengan React + Vite, ini adalah showcase dari project, skill, dan karya y
 1. Clone repository ini:
 
 ```bash
-git clone https://github.com/Adisaputra555/My-Portfolio.git
+git clone https://github.com/Adisaputra555/adisaputra555.github.io.git
 cd portfolio
 ```
 
@@ -48,7 +48,7 @@ npm run build
 ## &#x20;Quick Preview
 
 Jika sudah di-deploy (contoh: GitHub Pages, Netlify, Vercel), kamu bisa tambahkan link deploy di sini, misalnya:
-[🔗 Lihat versi live](https://username.github.io/My-Portfolio/)
+[🔗 Lihat versi live]( https://adisaputra555.github.io/)
 
 ## Tentang Saya
 
@@ -61,4 +61,4 @@ Saya seorang Developer yang suka bikin aplikasi web ringan dengan tampilan moder
 
 ---
 
-[1]: https://github.com/Adisaputra555/My-Portfolio.git "GitHub - Adisaputra555/portfolio"
+[1]:  https://adisaputra555.github.io/ "GitHub - Adisaputra555/adisaputra555.github.io"
