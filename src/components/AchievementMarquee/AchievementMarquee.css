@@ -1,0 +1,155 @@
+.achievement-marquee {
+  display: grid;
+  gap: 1rem;
+  overflow: hidden;
+  padding-block: 0.5rem;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    black 4%,
+    black 96%,
+    transparent
+  );
+}
+
+.achievement-track {
+  display: flex;
+  width: max-content;
+  animation: achievement-scroll-right 48s linear infinite;
+  will-change: transform;
+}
+
+.achievement-group {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 1.15rem;
+  padding-right: 1.15rem;
+}
+
+.achievement-card {
+  display: flex;
+  width: clamp(230px, 24vw, 300px);
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(28, 27, 43, 0.92), rgba(13, 15, 23, 0.96));
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.22);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.achievement-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(167, 139, 250, 0.5);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.32);
+}
+
+.achievement-image-frame {
+  display: grid;
+  height: 190px;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(196, 181, 253, 0.18), transparent 75%),
+    linear-gradient(145deg, #f8f8fc, #e5e5ee);
+  padding: 0.75rem;
+}
+
+.achievement-image-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(20, 20, 30, 0.08);
+  border-radius: 12px;
+  object-fit: contain;
+  object-position: center;
+  box-shadow: 0 6px 20px rgba(19, 20, 34, 0.12);
+}
+
+.achievement-card-caption {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+}
+
+.achievement-number {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(196, 181, 253, 0.24);
+  border-radius: 50%;
+  background: rgba(167, 139, 250, 0.1);
+  color: #d3c7ff;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.achievement-title {
+  color: #ecebf3;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.achievement-card:focus-visible,
+.achievement-marquee:focus-visible {
+  outline: 2px solid #c4b5fd;
+  outline-offset: 4px;
+}
+
+.achievement-marquee:hover .achievement-track,
+.achievement-marquee:focus-within .achievement-track {
+  animation-play-state: paused;
+}
+
+@keyframes achievement-scroll-right {
+  from {
+    transform: translateX(-25%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .achievement-card {
+    width: 230px;
+  }
+
+  .achievement-image-frame {
+    height: 165px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-marquee {
+    overflow-x: auto;
+    mask-image: none;
+  }
+
+  .achievement-track {
+    animation: none;
+    transform: none;
+  }
+
+  .achievement-group[aria-hidden="true"] {
+    display: none;
+  }
+
+  .achievement-card {
+    transition: none;
+  }
+}

@@ -1,118 +1,58 @@
-import { useRef, useEffect } from "react";
-import { gsap } from "gsap";
+import { FiPlay } from "react-icons/fi";
 import "./ChromaGrid.css";
 
-// Terima `onItemClick` di props
-export const ChromaGrid = ({
-  items,
-  onItemClick, // Fungsi handler dari App.jsx
-  className = "",
-  radius = 300,
-  columns = 3,
-  rows = 2,
-  damping = 0.45,
-  fadeOut = 0.6,
-  ease = "power3.out",
-}) => {
-  const rootRef = useRef(null);
-  const fadeRef = useRef(null);
-  const setX = useRef(null);
-  const setY = useRef(null);
-  const pos = useRef({ x: 0, y: 0 });
-
-  // Gunakan `items` yang di-pass dari App.jsx, bukan data demo
-  const data = items?.length ? items : [];
-
-  useEffect(() => {
-    const el = rootRef.current;
-    if (!el) return;
-    setX.current = gsap.quickSetter(el, "--x", "px");
-    setY.current = gsap.quickSetter(el, "--y", "px");
-    const { width, height } = el.getBoundingClientRect();
-    pos.current = { x: width / 2, y: height / 2 };
-    setX.current(pos.current.x);
-    setY.current(pos.current.y);
-  }, []);
-
-  const moveTo = (x, y) => {
-    gsap.to(pos.current, {
-      x,
-      y,
-      duration: damping,
-      ease,
-      onUpdate: () => {
-        setX.current?.(pos.current.x);
-        setY.current?.(pos.current.y);
-      },
-      overwrite: true,
-    });
-  };
-
-  const handleMove = (e) => {
-    const r = rootRef.current.getBoundingClientRect();
-    moveTo(e.clientX - r.left, e.clientY - r.top);
-    gsap.to(fadeRef.current, { opacity: 0, duration: 0.25, overwrite: true });
-  };
-
-  const handleLeave = () => {
-    gsap.to(fadeRef.current, {
-      opacity: 1,
-      duration: fadeOut,
-      overwrite: true,
-    });
-  };
-
-  const handleCardMove = (e) => {
-    const card = e.currentTarget;
+export const ChromaGrid = ({ items = [], onItemClick, className = "" }) => {
+  const handleCardMove = (event) => {
+    const card = event.currentTarget;
     const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    card.style.setProperty("--mouse-x", `${x}px`);
-    card.style.setProperty("--mouse-y", `${y}px`);
+    card.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
+    card.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
   };
 
   return (
-    <div
-      ref={rootRef}
-      className={`chroma-grid ${className}`}
-      style={
-        {
-          "--r": `${radius}px`,
-          "--cols": columns,
-          "--rows": rows,
-        }
-      }
-      onPointerMove={handleMove}
-      onPointerLeave={handleLeave}
-    >
-      {data.map((c, i) => (
-        <article
-          key={i}
-          className="chroma-card"
-          onMouseMove={handleCardMove}
-          // Panggil `onItemClick` saat kartu diklik dan kirim datanya
-          onClick={() => onItemClick(c)}
-          style={
-            {
-              "--card-border": c.borderColor || "transparent",
-              "--card-gradient": c.gradient,
-              cursor: "pointer", // Selalu pointer karena akan membuka modal
-            }
-          }
-        >
-          <div className="chroma-img-wrapper">
-            <img src={c.image} alt={c.title} loading="lazy" />
-          </div>
-          <footer className="chroma-info">
-            <h3 className="name">{c.title}</h3>
-            {c.handle && <span className="handle">{c.handle}</span>}
-            <p className="role">{c.subtitle}</p>
-            {c.location && <span className="location">{c.location}</span>}
-          </footer>
-        </article>
-      ))}
-      <div className="chroma-overlay" />
-      <div ref={fadeRef} className="chroma-fade" />
+    <div className={`chroma-grid ${className}`}>
+      {items.map((item) => {
+        const videoMedia = item.media?.find((media) => media.type === "video");
+
+        return (
+          <article
+            key={item.id}
+            className="chroma-card"
+            role="button"
+            tabIndex={0}
+            aria-label={`View ${item.title} details`}
+            onMouseMove={handleCardMove}
+            onClick={() => onItemClick(item)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onItemClick(item);
+              }
+            }}
+            style={{ "--card-border": item.borderColor || "#a78bfa" }}
+          >
+            <div className="chroma-img-wrapper">
+              <img
+                src={videoMedia?.thumbnail || item.image}
+                alt={item.title}
+                loading="lazy"
+              />
+              {videoMedia && (
+                <span className="video-badge">
+                  <FiPlay aria-hidden="true" />
+                  <span>Video</span>
+                </span>
+              )}
+            </div>
+            <footer className="chroma-info">
+              <h3 className="name">{item.title}</h3>
+              {item.handle && <span className="handle">{item.handle}</span>}
+              <p className="role">{item.subtitle}</p>
+              {item.location && <span className="location">{item.location}</span>}
+            </footer>
+          </article>
+        );
+      })}
     </div>
   );
 };

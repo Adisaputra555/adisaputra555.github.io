@@ -1,25 +1,43 @@
-// src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...", // Pastikan nilai ini tepat seperti di konsol
-  authDomain: "://firebaseapp.com",
-  projectId: "project-id",
-  storageBucket: "://appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Init Firebase
-const app = initializeApp(firebaseConfig);
+const requiredConfig = ["apiKey", "authDomain", "projectId", "appId"];
+export const isFirebaseConfigured = requiredConfig.every((key) =>
+  Boolean(firebaseConfig[key]?.trim()),
+);
 
-// Auth
-export const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-export const loginWithGoogle = () => signInWithPopup(auth, provider);
-export const logout = () => signOut(auth);
+const app = isFirebaseConfigured ? initializeApp(firebaseConfig) : null;
+export const auth = app ? getAuth(app) : null;
+export const db = app ? getFirestore(app) : null;
 
-// Firestore
-export const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
+
+export const loginWithGoogle = () => {
+  if (!auth) {
+    throw new Error("Firebase is not configured.");
+  }
+
+  return signInWithPopup(auth, googleProvider);
+};
+
+export const logout = () => {
+  if (!auth) {
+    throw new Error("Firebase is not configured.");
+  }
+
+  return signOut(auth);
+};

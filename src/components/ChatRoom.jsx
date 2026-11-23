@@ -1,136 +1,259 @@
-import { useState, useEffect } from "react";
-import { auth, loginWithGoogle, logout, db } from "../firebase";
+import { useEffect, useRef, useState } from "react";
+import { auth, db, isFirebaseConfigured, loginWithGoogle, logout } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import {
-  collection,
   addDoc,
+  collection,
+  limit,
   onSnapshot,
-  query,
   orderBy,
-  serverTimestamp
+  query,
+  serverTimestamp,
 } from "firebase/firestore";
+
+const getChatErrorMessage = (error) => {
+  switch (error?.code) {
+    case "auth/unauthorized-domain":
+      return "This website domain is not allowed in Firebase Authentication.";
+    case "auth/operation-not-allowed":
+      return "Google sign-in is not enabled in Firebase Authentication.";
+    case "auth/popup-blocked":
+      return "Your browser blocked the Google sign-in window. Allow pop-ups and try again.";
+    case "permission-denied":
+      return "Chat access was denied. Check the Firestore security rules.";
+    default:
+      return error?.message || "Something went wrong. Please try again.";
+  }
+};
 
 export default function ChatRoom() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [authReady, setAuthReady] = useState(!isFirebaseConfigured);
+  const [messagesLoading, setMessagesLoading] = useState(isFirebaseConfigured);
+  const [isSending, setIsSending] = useState(false);
+  const [isAuthPending, setIsAuthPending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const messagesRef = useRef(null);
 
-  // Cek login
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
-    return () => unsub();
+    if (!auth) return undefined;
+
+    return onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        setUser(currentUser);
+        setAuthReady(true);
+      },
+      (error) => {
+        setErrorMessage(getChatErrorMessage(error));
+        setAuthReady(true);
+      },
+    );
   }, []);
 
-  // Ambil pesan real-time
   useEffect(() => {
-    const q = query(collection(db, "messages"), orderBy("createdAt"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      setMessages(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    });
-    return () => unsub();
+    if (!db) return undefined;
+
+    const messagesQuery = query(
+      collection(db, "messages"),
+      orderBy("createdAt", "desc"),
+      limit(100),
+    );
+
+    return onSnapshot(
+      messagesQuery,
+      (snapshot) => {
+        setMessages(
+          snapshot.docs
+            .map((messageDoc) => ({ id: messageDoc.id, ...messageDoc.data() }))
+            .reverse(),
+        );
+        setMessagesLoading(false);
+      },
+      (error) => {
+        setErrorMessage(getChatErrorMessage(error));
+        setMessagesLoading(false);
+      },
+    );
   }, []);
 
-  // Kirim pesan
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!message.trim()) return;
+  useEffect(() => {
+    const messagesElement = messagesRef.current;
+    if (messagesElement) {
+      messagesElement.scrollTop = messagesElement.scrollHeight;
+    }
+  }, [messages]);
 
-    await addDoc(collection(db, "messages"), {
-      text: message,
-      uid: user.uid,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      createdAt: serverTimestamp()
-    });
-    setMessage("");
+  const handleGoogleLogin = async () => {
+    setErrorMessage("");
+    setIsAuthPending(true);
+    try {
+      await loginWithGoogle();
+    } catch (error) {
+      setErrorMessage(getChatErrorMessage(error));
+    } finally {
+      setIsAuthPending(false);
+    }
   };
 
-  return (
-    <div className="bg-zinc-900 border border-gray-700 p-6 rounded-xl shadow-lg max-w-xl mx-auto mt-5">
-      <h2 className="text-2xl font-bold text-center mb-4 text-white">💬 Chat Room</h2>
+  const handleLogout = async () => {
+    setErrorMessage("");
+    setIsAuthPending(true);
+    try {
+      await logout();
+    } catch (error) {
+      setErrorMessage(getChatErrorMessage(error));
+    } finally {
+      setIsAuthPending(false);
+    }
+  };
 
-      {/* Header user */}
+  const handleSendMessage = async (event) => {
+    event.preventDefault();
+    const text = message.trim();
+    if (!text || !user || !db) return;
+
+    setErrorMessage("");
+    setIsSending(true);
+    try {
+      await addDoc(collection(db, "messages"), {
+        text,
+        uid: user.uid,
+        displayName: user.displayName || user.email || "Google user",
+        photoURL: user.photoURL || "",
+        createdAt: serverTimestamp(),
+      });
+      setMessage("");
+    } catch (error) {
+      setErrorMessage(getChatErrorMessage(error));
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  if (!isFirebaseConfigured) {
+    return (
+      <div className="chat-room">
+        <p className="chat-status" role="status">
+          Live chat needs Firebase setup. Add the Firebase web app settings to
+          your local environment to enable Google sign-in and messaging.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="chat-room">
       {user && (
-        <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+        <div className="chat-user-header">
           <div className="flex items-center gap-3">
-            <img src={user.photoURL} alt="avatar" className="w-10 h-10 rounded-full" />
-            <span className="text-white font-semibold">{user.displayName}</span>
+            {user.photoURL && (
+              <img
+                src={user.photoURL}
+                alt=""
+                className="w-10 h-10 rounded-full"
+              />
+            )}
+            <span className="text-white font-semibold">
+              {user.displayName || user.email}
+            </span>
           </div>
           <button
-            onClick={logout}
-            className="bg-red-600 px-4 py-1 rounded-full text-white hover:bg-red-700"
+            type="button"
+            onClick={handleLogout}
+            className="chat-logout"
+            disabled={isAuthPending}
           >
-            Logout
+            {isAuthPending ? "Please wait..." : "Logout"}
           </button>
         </div>
       )}
 
-      {/* Area pesan */}
-      <div className="h-72 overflow-y-auto border border-gray-700 p-3 rounded-lg bg-zinc-800 mb-4 space-y-3">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex gap-2 ${msg.uid === user?.uid ? "justify-end" : "justify-start"}`}
-          >
-            {msg.uid !== user?.uid && (
-              <img
-                src={msg.photoURL || "https://via.placeholder.com/40"}
-                alt="avatar"
-                className="w-8 h-8 rounded-full"
-              />
-            )}
-            <div
-              className={`p-3 rounded-lg max-w-[75%] ${
-                msg.uid === user?.uid
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-700 text-white"
-              }`}
-            >
-              <div className="text-xs opacity-70 mb-1">{msg.displayName}</div>
-              <div>{msg.text}</div>
-            </div>
-            {msg.uid === user?.uid && (
-              <img
-                src={msg.photoURL || "https://via.placeholder.com/40"}
-                alt="avatar"
-                className="w-8 h-8 rounded-full"
-              />
-            )}
-          </div>
-        ))}
+      <div
+        className="chat-messages"
+        ref={messagesRef}
+        aria-live="polite"
+        aria-label="Live chat messages"
+      >
+        {messagesLoading ? (
+          <p className="chat-status">Loading messages...</p>
+        ) : messages.length === 0 ? (
+          <p className="chat-status">No messages yet. Start the conversation.</p>
+        ) : (
+          messages.map((msg) => {
+            const isMine = msg.uid === user?.uid;
+
+            return (
+              <div
+                key={msg.id}
+                className={`chat-message ${isMine ? "is-mine" : ""}`}
+              >
+                {!isMine && msg.photoURL && (
+                  <img src={msg.photoURL} alt="" className="chat-avatar" />
+                )}
+                <div className={`chat-bubble ${isMine ? "is-mine" : ""}`}>
+                  <div className="text-xs opacity-70 mb-1">
+                    {msg.displayName || "Google user"}
+                  </div>
+                  <div>{msg.text}</div>
+                </div>
+                {isMine && msg.photoURL && (
+                  <img src={msg.photoURL} alt="" className="chat-avatar" />
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
 
-      {/* Form login / kirim pesan */}
-      {user ? (
-        <form onSubmit={sendMessage} className="flex gap-2 flex-wrap sm:flex-nowrap w-full">
+      {errorMessage && (
+        <p className="chat-error" role="alert">
+          {errorMessage}
+        </p>
+      )}
+
+      {!authReady ? (
+        <p className="chat-status">Connecting to Google sign-in...</p>
+      ) : user ? (
+        <form onSubmit={handleSendMessage} className="chat-compose">
           <input
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Ketik pesan..."
-            className="flex-1 min-w-0 p-2 rounded-lg bg-zinc-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(event) => setMessage(event.target.value)}
+            placeholder="Type a message..."
+            className="chat-input"
+            maxLength={1000}
+            aria-label="Chat message"
+            disabled={isSending}
           />
           <button
             type="submit"
-            className="bg-green-600 px-4 py-2 rounded-lg text-white hover:bg-green-700 w-full sm:w-auto"
+            className="chat-send"
+            disabled={isSending || !message.trim()}
           >
-            Send
+            {isSending ? "Sending..." : "Send"}
           </button>
         </form>
       ) : (
         <div className="flex flex-col items-center justify-center gap-4">
           <button
-            onClick={loginWithGoogle}
-            className="flex items-center gap-3 bg-white text-gray-800 px-5 py-2 rounded-full shadow hover:bg-gray-200 transition"
+            type="button"
+            onClick={handleGoogleLogin}
+            className="chat-login"
+            disabled={isAuthPending}
           >
             <img
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-              alt="Google logo"
+              alt=""
               className="w-5 h-5"
             />
-            Login with Google
+            {isAuthPending ? "Signing in..." : "Login with Google"}
           </button>
-          <p className="text-sm text-gray-400">Login untuk mengirim pesan</p>
+          <p className="text-sm text-gray-400">
+            Sign in with Google to send a message.
+          </p>
         </div>
       )}
     </div>

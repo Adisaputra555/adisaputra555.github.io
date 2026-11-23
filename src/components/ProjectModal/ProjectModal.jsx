@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FiX, FiGithub } from 'react-icons/fi'; // Install react-icons jika belum: npm install react-icons
+import { FiArrowLeft, FiX, FiGithub } from 'react-icons/fi'; // Install react-icons jika belum: npm install react-icons
 
-const ProjectModal = ({ isOpen, onClose, project }) => {
+const ProjectModal = ({ isOpen, onClose, project, backLabel = "Back to projects" }) => {
   // State untuk mengontrol animasi penutupan
   const [isClosing, setIsClosing] = useState(false);
 
@@ -28,52 +28,86 @@ const ProjectModal = ({ isOpen, onClose, project }) => {
     };
   }, [isOpen]);
 
-
   if (!isOpen) return null;
+
+  const mediaItems = project.media?.length
+    ? project.media
+    : [{ type: "image", src: project.image, alt: project.title }];
 
   return (
     // Overlay
     <div
       onClick={handleClose}
-      className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4 transition-opacity duration-300"
+      className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-50 p-4 transition-opacity duration-300"
     >
       {/* Modal Content */}
       <div
         onClick={(e) => e.stopPropagation()} // Mencegah modal tertutup saat diklik di dalam
-        className={`bg-zinc-900 border border-violet-500/50 rounded-2xl shadow-2xl shadow-violet-500/20 w-full max-w-lg transform transition-transform duration-300 ${isClosing ? 'animate-out' : 'animate-in'}`}
+        className={`bg-[#11121b] border border-white/10 rounded-3xl shadow-2xl shadow-black/50 w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-transform duration-300 ${isClosing ? 'animate-out' : 'animate-in'}`}
       >
-        {/* --- GAMBAR PROYEK --- */}
-        <img 
-          src={project.image} 
-          alt={project.title} 
-          className="w-full h-56 object-cover rounded-t-2xl"
-        />
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#11121b]/95 p-4 backdrop-blur">
+          <button
+            onClick={handleClose}
+            className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <FiArrowLeft aria-hidden="true" />
+            {backLabel}
+          </button>
+          <button
+            onClick={handleClose}
+            aria-label="Close project details"
+            className="rounded-full p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <FiX size={20} />
+          </button>
+        </div>
+
+        <div className="flex flex-col items-center gap-3 p-4 pb-0">
+          {mediaItems.map((media, index) => (
+            media.type === "video" ? (
+              <video
+                key={`${media.src}-${index}`}
+                src={media.src}
+                poster={media.thumbnail}
+                controls
+                playsInline
+                preload="metadata"
+                aria-label={media.alt || project.title}
+                className="h-auto w-auto max-h-[60vh] max-w-full self-center rounded-xl bg-[#171526] object-contain"
+              />
+            ) : (
+              <img
+                key={`${media.src}-${index}`}
+                src={media.src}
+                alt={media.alt || project.title}
+                loading="lazy"
+                className="h-auto w-auto max-h-[60vh] max-w-full self-center rounded-xl object-contain"
+              />
+            )
+          ))}
+        </div>
 
         <div className="p-6 flex flex-col gap-4">
-            <div className="flex justify-between items-start">
-                <h2 className="text-2xl font-bold text-white">{project.title}</h2>
-                <button
-                    onClick={handleClose}
-                    className="text-zinc-400 hover:text-white transition-colors p-2 rounded-full hover:bg-zinc-700 -mt-2 -mr-2"
-                >
-                    <FiX size={24} />
-                </button>
-            </div>
+            <h2 className="text-2xl font-bold text-white">{project.title}</h2>
 
             {/* --- DESKRIPSI LENGKAP --- */}
-            <p className="text-zinc-300 text-base leading-relaxed">
+            {project.fullDescription && (
+              <p className="text-zinc-300 text-base leading-relaxed">
                 {project.fullDescription}
-            </p>
+              </p>
+            )}
 
-            <a
+            {project.url && (
+              <a
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 inline-flex items-center justify-center gap-2 font-semibold bg-violet-600 p-3 px-5 rounded-full w-full cursor-pointer border border-transparent hover:bg-violet-700 transition-colors"
-            >
+                className="mt-4 inline-flex items-center justify-center gap-2 font-semibold bg-gradient-to-r from-violet-300 to-cyan-200 text-zinc-950 p-3 px-5 rounded-full w-full cursor-pointer border border-transparent hover:brightness-110 transition-colors"
+              >
                 <FiGithub />
                 <span>Source Code</span>
-            </a>
+              </a>
+            )}
         </div>
       </div>
        {/* CSS untuk animasi */}

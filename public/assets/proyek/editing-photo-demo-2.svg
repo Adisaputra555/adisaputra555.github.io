@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#831843"/>
+      <stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="1280" fill="url(#background)"/>
+  <rect x="100" y="245" width="520" height="590" rx="28" fill="none" stroke="#fff" stroke-width="14" opacity=".8"/>
+  <circle cx="270" cy="420" r="62" fill="#fff" opacity=".85"/>
+  <path d="M135 775l145-165 105 100 105-135 110 200H135z" fill="#fff" opacity=".8"/>
+  <text x="360" y="1010" fill="#fff" font-family="Arial, sans-serif" font-size="54" font-weight="700" text-anchor="middle">FOTO DEMO</text>
+  <text x="360" y="1080" fill="#fff" font-family="Arial, sans-serif" font-size="36" text-anchor="middle" opacity=".8">PORTRAIT</text>
+</svg>

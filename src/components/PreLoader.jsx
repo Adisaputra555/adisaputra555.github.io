@@ -27,6 +27,16 @@ const PreLoader = () => {
     }
   }, [countDone])
 
+  useEffect(() => {
+    const fadeFallbackTimer = setTimeout(() => setFadeScreen(true), 2500)
+    const hideFallbackTimer = setTimeout(() => setLoading(false), 3500)
+
+    return () => {
+      clearTimeout(fadeFallbackTimer)
+      clearTimeout(hideFallbackTimer)
+    }
+  }, [])
+
   return (
     loading && (
       <div
