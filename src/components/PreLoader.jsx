@@ -40,7 +40,7 @@ const PreLoader = () => {
   return (
     loading && (
       <div
-        className={`w-screen h-screen fixed flex items-center justify-center bg-black z-[10000] overflow-hidden transition-opacity duration-1000 ${
+        className={`preloader-screen fixed flex items-center justify-center bg-black z-[10000] overflow-hidden transition-opacity duration-1000 ${
           fadeScreen ? "opacity-0" : "opacity-100"
         }`}
       >

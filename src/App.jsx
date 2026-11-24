@@ -162,7 +162,7 @@ function App() {
               </p>
               <div className="about-stats">
                 <div className="about-stat">
-                  <strong>1<span className="hero-title-accent">+</span></strong>
+                  <strong>3<span className="hero-title-accent">+</span></strong>
                   <span>Project completed</span>
                 </div>
                 <div className="about-stat">

@@ -251,10 +251,12 @@
 }
 
 .pc-handle {
+  display: block;
   font-size: 14px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1;
+  white-space: nowrap;
 }
 
 .pc-status {

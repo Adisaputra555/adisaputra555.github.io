@@ -166,6 +166,7 @@ export const listTools = [
 import Proyek1 from "/assets/proyek/proyek1.png";
 import Proyek2 from "/assets/proyek/proyek2.png";
 import Proyek3 from "/assets/proyek/proyek3.png";
+import Proyek4 from "/assets/proyek/proyek4.png";
 
 export const listProyek = [
   {
@@ -200,6 +201,16 @@ export const listProyek = [
     gradient: "linear-gradient(145deg, #3B82F6, #000)",
     url: "https://github.com/Adisaputra555",
     dad: "300",
+  },
+  {
+    id: 4,
+    image: Proyek4,
+    title: "Automasi Data BPJS & CKG",
+    subtitle: "Otomasi pengumpulan dan rekapitulasi data BPJS serta CKG menggunakan UI.Vision RPA untuk pekerjaan freelance.",
+    fullDescription: "Workflow freelance untuk mengotomatisasi pengumpulan dan rekapitulasi data layanan BPJS dan Cek Kesehatan Gratis (CKG) menggunakan skrip JSON pada ekstensi UI.Vision RPA di Chrome. Otomasi ini membantu membuat alur pengambilan data lebih terstruktur dan berulang. Penggunaan dilakukan sesuai izin dan kebijakan akses dari sumber data.",
+    borderColor: "#10B981",
+    gradient: "linear-gradient(145deg, #10B981, #12251F)",
+    dad: "400",
   },
 ];
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FiArrowLeft, FiX, FiGithub } from 'react-icons/fi'; // Install react-icons jika belum: npm install react-icons
 
 const ProjectModal = ({ isOpen, onClose, project, backLabel = "Back to projects" }) => {
@@ -34,16 +35,16 @@ const ProjectModal = ({ isOpen, onClose, project, backLabel = "Back to projects"
     ? project.media
     : [{ type: "image", src: project.image, alt: project.title }];
 
-  return (
+  return createPortal((
     // Overlay
     <div
       onClick={handleClose}
-      className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-50 p-4 transition-opacity duration-300"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md transition-opacity duration-300"
     >
       {/* Modal Content */}
       <div
         onClick={(e) => e.stopPropagation()} // Mencegah modal tertutup saat diklik di dalam
-        className={`bg-[#11121b] border border-white/10 rounded-3xl shadow-2xl shadow-black/50 w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-transform duration-300 ${isClosing ? 'animate-out' : 'animate-in'}`}
+        className={`max-h-[calc(100dvh-2rem)] w-full max-w-2xl transform overflow-y-auto rounded-3xl border border-white/10 bg-[#11121b] shadow-2xl shadow-black/50 transition-transform duration-300 ${isClosing ? 'animate-out' : 'animate-in'}`}
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#11121b]/95 p-4 backdrop-blur">
           <button
@@ -129,7 +130,7 @@ const ProjectModal = ({ isOpen, onClose, project, backLabel = "Back to projects"
         }
       `}</style>
     </div>
-  );
+  ), document.body);
 };
 
 export default ProjectModal;

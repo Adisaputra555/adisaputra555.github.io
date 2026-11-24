@@ -1,6 +1,6 @@
 .editing-gallery {
   position: relative;
-  max-width: 1180px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: clamp(1.5rem, 4vw, 3rem) 0;
   overflow: hidden;
@@ -330,7 +330,9 @@
   }
 
   .editing-gallery-carousel {
-    height: clamp(210px, 60vw, 280px);
+    height: auto;
+    /* Keep the 70%-wide active slide close to the desktop card's 2.2:1 ratio. */
+    aspect-ratio: 3.17 / 1;
   }
 
   .editing-slide {
@@ -349,7 +351,7 @@
   }
 
   .editing-slide-active {
-    width: 86%;
+    width: 70%;
   }
 
   .editing-gallery-caption {
